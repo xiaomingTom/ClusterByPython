@@ -36,7 +36,7 @@ for i in range(200):
     vector[3]=int(1)
     Assment.append(vector)
 
-dataPart=9*numpy.random.randn(2,50)+15
+dataPart=12*numpy.random.randn(2,50)+15
 dataSet=numpy.hstack((dataSet,dataPart))
 dataSet=dataSet.T
 Assment=numpy.mat(Assment)
