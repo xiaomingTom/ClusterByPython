@@ -94,6 +94,35 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
         Lambda/=mu
     return centroids, clusterAssment,weight
      
+'''keans算法'''
+def kMeans(dataSet, k,distMeas=distEclud, createCent=randCent):     
+    n = numpy.shape(dataSet)[1]
+    clusterAssment = numpy.mat(numpy.zeros((k,n)))
+    #to a centroid, also holds SE of each point
+    centroids = createCent(dataSet, k)
+    clusterChanged = True
+    while clusterChanged:
+        clusterChanged = False
+        for i in range(n):#for each data point assign it to the closest centroid
+            minDist = numpy.inf
+            minIndex = -1
+            for j in range(k):
+                distJI = distMeas(centroids[:,j],dataSet[:,i])
+                #print distJI.tolist()
+                if distJI < minDist:
+                    minDist = distJI; minIndex = j 
+            if clusterAssment[minIndex,i] != 1:
+                clusterChanged = True
+                clusterAssment[:,i] = 0
+                clusterAssment[minIndex,i]=1
+        '''
+        for cent in range(k):#recalculate centroids
+            ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
+            centroids[cent,:] = mean(ptsInClust, axis=0) #assign centroid to mean 
+        '''
+        centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+    return centroids, clusterAssment
+
 '''画图函数'''    
 def show(dataSet, k, centroids, clusterAssment):
     numSamples = dataSet.shape[1]  
@@ -113,13 +142,15 @@ def main():
     centerNum = input('please input the number of the center:\n')
     Lambda = input('please input Lambda:\n')
     mu = input('please input mu(mu>1):\n')
+    myCentroids,clustAssing=kMeans(dataMat, centerNum)
+    show(dataMat, 4, myCentroids, clustAssing)
     myCentroids,clustAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda,mu)
     print myCentroids
     print clustAssing
     print weight
     show(dataMat, 4, myCentroids, clustAssing)
     clusterAssing2=clustAssing[:,[i for i in range(0,numpy.shape(clustAssing)[1]-50)] ]
-    realAssment = loadDataSet("c:/Assment.txt")
+    realAssment = loadDataSet("d:/Assment.txt")
     purity=Purity()
     clusterVSet=purity.Divide(clusterAssing2)
     realVSet=purity.Divide(realAssment)    
@@ -139,9 +170,6 @@ def main():
     for i in range(centerNum):
         for j in range(centerNum):
             total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
-            print 'len=',len(clusterVSet[i])
-            print 'pro[',i,',',j,']=',-probMatr[i,j]
-            print 'match[',i,'][',j,']=',matchMatr[i][j]
     print 'the Accuracy=',total/(numpy.shape(dataMat)[1]-50)
     
 if __name__ == '__main__':

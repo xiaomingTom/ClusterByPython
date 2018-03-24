@@ -2,7 +2,7 @@
 import numpy
 
 # 生成5*2的满足N(0,1)分布的样本矩阵
-dataPart=numpy.random.randn(2,50)
+dataPart=2*numpy.random.randn(2,50)
 dataSet=dataPart
 #创建并配置分类矩阵
 Assment=[]
@@ -11,8 +11,8 @@ for i in range(50):
     vector[0]=int(1)
     Assment.append(vector)
     
-dataPart=numpy.random.randn(1,100)
-datapart2=numpy.random.randn(1,100)+8
+dataPart=3*numpy.random.randn(1,100)
+datapart2=3*numpy.random.randn(1,100)+30
 # hstack水平拼接矩阵,vstack垂直拼接矩阵
 dataSet=numpy.hstack(( dataSet,numpy.vstack( (dataPart,datapart2) ) ))
 for i in range(100):
@@ -20,23 +20,23 @@ for i in range(100):
     vector[1]=int(1)
     Assment.append(vector)
 
-dataPart=numpy.random.randn(1,150)+8
-datapart2=numpy.random.randn(1,150)
+dataPart=4*numpy.random.randn(1,150)+30
+datapart2=4*numpy.random.randn(1,150)
 dataSet=numpy.hstack(( dataSet,numpy.vstack( (dataPart,datapart2) ) ))
 for i in range(150):
     vector=[int(0) for j in range(4)]
     vector[2]=int(1)
     Assment.append(vector)
 
-dataPart=numpy.random.randn(1,200)+8
-datapart2=numpy.random.randn(1,200)+8
+dataPart=5*numpy.random.randn(1,200)+30
+datapart2=5*numpy.random.randn(1,200)+30
 dataSet=numpy.hstack(( dataSet,numpy.vstack( (dataPart,datapart2) ) ))
 for i in range(200):
     vector=[int(0) for j in range(4)]
     vector[3]=int(1)
     Assment.append(vector)
 
-dataPart=numpy.random.rand(2,50)*14
+dataPart=numpy.random.rand(2,50)*35
 dataSet=numpy.hstack((dataSet,dataPart))
 dataSet=dataSet.T
 Assment=numpy.mat(Assment)
