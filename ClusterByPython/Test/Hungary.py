@@ -4,7 +4,10 @@ import numpy
 
 class Hungary:
     def __init__(self,matr=numpy.mat([])):
-        self.matr=matr
+        '''这里采用值复制，后序函数会改动self.matr的值，如果采用
+           self.matr=matr 引用复制，会导致matr指向的空间的值发生改动，这是我们所不希望发生的。
+        '''
+        self.matr=numpy.mat(matr.tolist())
         #m行,n列,要求m<=n
         self.m,self.n=numpy.shape(matr)
         
@@ -14,8 +17,6 @@ class Hungary:
         
     def getMatr(self):
         return self.matr
-        
-    #归约函数
     
     '''归约函数'''
     def reduce(self):
@@ -77,8 +78,6 @@ class Hungary:
                 i+=1
                 flag=True
                 zeroSet.append(minZeroLoc)
-        print i
-        print zeroSet
         self.zeroSet=zeroSet
         if i==self.m:
             return True
@@ -110,8 +109,6 @@ class Hungary:
                     flag=True
         self.rowFlag=rowFlag
         self.colFlag=colFlag
-        print rowFlag
-        print colFlag
         
     '''矩阵更新函数'''    
     def updateMatr(self):
@@ -143,20 +140,12 @@ class Hungary:
         for i in range(len(self.zeroSet)):
             matchMatr[self.zeroSet[i][0],self.zeroSet[i][1]]=1
         return matchMatr
-        
+  
+'''        
 matr=numpy.mat([[12,7,9,7,9],[8,9,6,6,6],[7,17,12,14,9],[15,14,6,6,10],[4,10,7,10,9]])
 #matr=numpy.mat([[1 for j in range(5)] for i in range(5)])
 print matr
 hungary=Hungary(matr)
-'''
-hungary.reduce()
-print hungary.getMatr()[0,0]==1
-if hungary.tryMatch():
-    print "匹配成功"
-else:
-    print "匹配失败"
-hungary.coverZeroLine()
-hungary.updateMatr()
-'''
 print hungary.hungary()
 print hungary.getMatr()
+'''

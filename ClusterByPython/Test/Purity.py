@@ -22,11 +22,15 @@ class Purity:
             clusterVSet.append(clusterV)
         return clusterVSet
     
+    '''聚类i元素在类j中的概率'''
+    def probIJ(self,clusterV=set(),realV=set()):
+        return float(len(clusterV&realV))/len(clusterV)
+    
     '''纯度函数，求出cluster聚类的纯度'''
-    def purity(self,realV=[set()],clusterV=set()):
+    def purity(self,realVList=[set()],clusterV=set()):
         maxPro=0#最大概率
-        for i in range(len(realV)):
-            Pro=float(len(clusterV&realV[i]))/len(clusterV)
+        for i in range(len(realVList)):
+            Pro=float(len(clusterV&realVList[i]))/len(clusterV)
             if(maxPro< Pro):
                 maxPro=Pro
         return maxPro

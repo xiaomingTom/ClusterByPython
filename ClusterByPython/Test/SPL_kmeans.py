@@ -1,9 +1,10 @@
 #ecoding=utf-8 
 import numpy
-
 from matplotlib import pyplot as plt
 from Test.Purity import Purity
+from Test.Hungary import Hungary
  
+'''数据加载函数''' 
 def loadDataSet(fileName):
     dataMat=[]
     fr=open(fileName)
@@ -14,11 +15,11 @@ def loadDataSet(fileName):
     dataMat=numpy.mat(dataMat)
     return dataMat.T
      
-#计算欧式距离
+'''欧式距离计算函数'''
 def distEclud(vecA, vecB):
     return numpy.sqrt(sum(numpy.power(vecA - vecB, 2)))
  
-#获取初始聚类中心
+'''获取初始聚类中心'''
 def randCent(dataSet, k):
     dim , dataNum= numpy.shape(dataSet)
     centroids = numpy.mat(numpy.zeros((dim,k)))
@@ -43,7 +44,7 @@ def randCent(dataSet, k):
     return centroids
     '''
     
-     
+'''自步学习kmeans聚类函数'''
 def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent):
     n = numpy.shape(dataSet)[1]
     #print 'n=',n
@@ -69,8 +70,6 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
                 clusterChanged = True
                 clusterAssment[:,i] = 0
                 clusterAssment[minIndex,i]=1
-        #print centroids
-        #print clusterAssment.T
         '''
         for cent in range(k):#recalculate centroids
             ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
@@ -81,10 +80,13 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
         e=numpy.e
         for i in range(n):
             dist=distMeas(dataSet[:,i], centroids[:,numpy.array(clusterAssment)[:,i].tolist().index(1)]).tolist()[0][0]
+            '''
             if 10*dist<1/Lambda:
                 weight.append(1)
             else:
                 weight.append( (1+e**(-1/Lambda)) / (1+e**(dist-1/Lambda)) )
+            '''
+            weight.append( (1+e**(-1/Lambda)) / (1+e**(dist-1/Lambda)) )
         #recalculate centroids
         W=numpy.diag(numpy.sqrt(weight))
         centroids = (dataSet*W*W.T*clusterAssment.T)*((clusterAssment*W*W.T*clusterAssment.T).I)
@@ -92,7 +94,7 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
         Lambda/=mu
     return centroids, clusterAssment,weight
      
-     
+'''画图函数'''    
 def show(dataSet, k, centroids, clusterAssment):
     numSamples = dataSet.shape[1]  
     mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr'] 
@@ -104,7 +106,7 @@ def show(dataSet, k, centroids, clusterAssment):
         plt.plot(centroids[0, i], centroids[1, i], mark[i], markersize = 12)  
     plt.show()
 
-       
+'''主函数'''      
 def main():
     dataMat = loadDataSet("D:/DataSet.txt")
     #print 'dataMat.shape=' + numpy.shape(dataMat).__str__()
@@ -115,9 +117,8 @@ def main():
     print myCentroids
     print clustAssing
     print weight
-    #show(dataMat, 4, myCentroids, clustAssing)
+    show(dataMat, 4, myCentroids, clustAssing)
     clusterAssing2=clustAssing[:,[i for i in range(0,numpy.shape(clustAssing)[1]-50)] ]
-    #numpy.delete(clustAssing, [i for i in range(numpy.shape(clustAssing)[1]-50,numpy.shape(clustAssing)[1])], axis=1)
     realAssment = loadDataSet("c:/Assment.txt")
     purity=Purity()
     clusterVSet=purity.Divide(clusterAssing2)
@@ -127,7 +128,21 @@ def main():
         pur=purity.purity(realVSet, clusterVSet[i])
         print "pur",i,"=",pur
         purityTotal+=pur*len(clusterVSet[i])
-    print 'the purity=',purityTotal/(numpy.shape(dataMat)[1]-50)
+    print 'the Purity=',purityTotal/(numpy.shape(dataMat)[1]-50)
+    probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
+                        for i in range(centerNum)])
+    print probMatr
+    hungary=Hungary(probMatr)
+    matchMatr=hungary.hungary()
+    print matchMatr
+    total=0
+    for i in range(centerNum):
+        for j in range(centerNum):
+            total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
+            print 'len=',len(clusterVSet[i])
+            print 'pro[',i,',',j,']=',-probMatr[i,j]
+            print 'match[',i,'][',j,']=',matchMatr[i][j]
+    print 'the Accuracy=',total/(numpy.shape(dataMat)[1]-50)
     
 if __name__ == '__main__':
     main()
