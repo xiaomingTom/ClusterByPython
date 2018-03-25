@@ -23,7 +23,6 @@ class NMI:
         for i in range(len(self.clusterAssment)):
             for j in range(len(self.realAssment)):
                 self.joinP[i,j]=float( len(self.clusterAssment[i]&self.realAssment[j]) )/self.dataNum
-
     '''MI计算函数'''
     def MI(self):
         return numpy.sum(numpy.mat([[self.joinP[i,j]*numpy.log2(self.joinP[i,j]/self.clusterProbV[i]/self.realProbV[j]) for j in range(len(self.realAssment))] for i in range(len(self.clusterAssment))]))
