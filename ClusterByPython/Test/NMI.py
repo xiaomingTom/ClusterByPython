@@ -16,8 +16,6 @@ class NMI:
         self.clusterProbV=[float(len(self.clusterAssment[i]))/self.dataNum for i in range(len(self.clusterAssment))]
         #计算真实类别分布概率并保存
         self.realProbV=[float(len(self.realAssment[i]))/self.dataNum for i in range(len(self.realAssment))]
-        print self.clusterProbV
-        print self.realProbV
         
     '''计算联合分布概率函数'''
     def joinProb(self):
@@ -25,7 +23,6 @@ class NMI:
         for i in range(len(self.clusterAssment)):
             for j in range(len(self.realAssment)):
                 self.joinP[i,j]=float( len(self.clusterAssment[i]&self.realAssment[j]) )/self.dataNum
-        print self.joinP
 
     '''MI计算函数'''
     def MI(self):
