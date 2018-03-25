@@ -42,8 +42,10 @@ class NMI:
         self.joinProb()
         self.entropy()
         return 2*self.MI()/(self.clusterEntropy+self.realEntropy)
-        
+
+'''    
 cluster=[{1,2,3,4,6},{6,7,8,9,5}]
 real=[{1,2,3,4,5},{6,7,8,9,10}]
 nmi=NMI(cluster,real)
 print nmi.nmi()
+'''
