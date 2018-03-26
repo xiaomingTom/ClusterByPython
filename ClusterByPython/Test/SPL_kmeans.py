@@ -1,11 +1,7 @@
 #ecoding=utf-8 
 import numpy
 from matplotlib import pyplot as plt
-from Test.Purity import Purity
-from Test.Hungary import Hungary
-from Test.DBI import DBI
-from Test.NMI import NMI
- 
+
 '''数据加载函数''' 
 def loadDataSet(fileName):
     dataMat=[]
@@ -137,17 +133,27 @@ def show(dataSet, k, centroids, clusterAssment):
         plt.plot(centroids[0, i], centroids[1, i], mark[i], markersize = 12)  
     plt.show()
 
-'''主函数'''      
+'''      
 def main():
     dataMat = loadDataSet("D:/DataSet.txt")
-    #print 'dataMat.shape=' + numpy.shape(dataMat).__str__()
+    
+    xlsFile=xlrd.open_workbook('d:/Data_User_Modeling_Dataset_Hamdi Tolga KAHRAMAN.xls')
+    dataTable=xlsFile.sheets()[1]
+    rowLine=[]
+    lable=dataTable.col_values(5)
+    for i in range(1,dataTable.nrows):
+        rowLine.append(dataTable.row_values(i)[0:5])
+    print rowLine
+    print lable
+    
     centerNum = input('please input the number of the center:\n')
     Lambda = input('please input Lambda:\n')
     mu = input('please input mu(mu>1):\n')
-    '''-
+    
     myCentroids,clustAssing=kMeans(dataMat, centerNum)
     show(dataMat, 4, myCentroids, clustAssing)
-    '''
+    
+    
     myCentroids,clustAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda,mu)
     print myCentroids
     print clustAssing
@@ -186,3 +192,4 @@ def main():
     
 if __name__ == '__main__':
     main()
+'''
