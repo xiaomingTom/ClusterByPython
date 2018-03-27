@@ -1,6 +1,7 @@
 #coding=utf-8
 import xlrd
-from SPL_kmeans import *
+import numpy
+from SPL_W_kmeans import SPL_W_kmeans
 from Test.Purity import Purity
 from Test.Hungary import Hungary
 from Test.DBI import DBI
@@ -14,7 +15,7 @@ lable=dataTable.col_values(5)
 #获取数据信息
 for i in range(1,dataTable.nrows):
     rowLines.append(dataTable.row_values(i)[0:5])
-dataMat=numpy.mat(rowLines).T
+dataMat=rowLines
 
 #将标签信息整理成分类矩阵
 realAssment=[]
@@ -28,36 +29,36 @@ for i in range(len(lable)):
     else:
         realAssment.append([0,0,0,1])
 realAssment=numpy.mat(realAssment).T
-
-
 centerNum = input('please input the number of the center:\n')
-Lambda = input('please input Lambda:\n')
+Lambda = input('please input Lambda(Lambda>0):\n')
 mu = input('please input mu(mu>1):\n')
-myCentroids,clusterAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda,mu)
-#myCentroids,clusterAssing=kMeans(dataMat, centerNum)
-show(dataMat, 4, myCentroids, clusterAssing)
-print weight
+eta=input('please input eta(eta>0):\n')
+kmeans=SPL_W_kmeans(centerNum,Lambda,mu,eta,dataMat)
+clusterAssing,myCentroids,attrWeight,samWeight=kmeans.kmeans()
+print 'centoids=\n',myCentroids
+print 'attrWeight=\n',attrWeight
+print 'samWeight=\n',samWeight
+print 'clusetAssing=\n',clusterAssing
+print 'samWeight=\n',samWeight
 purity=Purity()
-clusterVSet=purity.Divide(clusterAssing)
+clusterVSet=purity.Divide(numpy.mat(clusterAssing).T)
 realVSet=purity.Divide(realAssment)    
 purityTotal=0
 for i in range(centerNum):
     pur=purity.purity(realVSet, clusterVSet[i])
     print "pur",i,"=",pur
     purityTotal+=pur*len(clusterVSet[i])
-print 'the Purity=',purityTotal/(numpy.shape(dataMat)[1])
+print 'the Purity=',purityTotal/(len(dataMat))
 probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
                     for i in range(centerNum)])
-#print probMatr
 hungary=Hungary(probMatr)
 matchMatr=hungary.hungary()
-#print matchMatr
 total=0
 for i in range(centerNum):
     for j in range(centerNum):
         total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
-print 'the Accuracy=',total/(numpy.shape(dataMat)[1])
+print 'the Accuracy=',total/(len(dataMat))
 nmi=NMI(clusterVSet,realVSet)
 print 'nmi=',nmi.nmi()
-dbi=DBI(dataMat,myCentroids,clusterVSet)
+dbi=DBI(numpy.mat(dataMat).T,numpy.mat(myCentroids).T,clusterVSet)
 print 'DBI=',dbi.dbi()

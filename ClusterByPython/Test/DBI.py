@@ -35,16 +35,4 @@ class DBI:
                     MaxDist=dist
             SumDist+=MaxDist
         return (SumDist/numpy.shape(self.centroid)[1])[0,0]
-
-'''
-dataSet=numpy.mat([[1,2,3,4],[5,6,7,8],[1,5,4,9],[7,5,2,1]])
-centroid=(numpy.mat([[0,0,0,0],[1,1,1,1]])).T
-clusterAssment=[{0,2},{1,3}]
-dbi=DBI(dataSet,centroid,clusterAssment)
-
-
-print dbi.CP(0)
-print dbi.CP(1)
-print dbi.dbi()
-'''
         

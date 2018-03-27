@@ -34,13 +34,3 @@ class Purity:
             if(maxPro< Pro):
                 maxPro=Pro
         return maxPro
-'''
-a=numpy.mat([[1,0,0,0,0,1],[0,1,0,0,0,0],[0,0,1,0,0,0],[0,0,0,1,0,0],[0,0,0,0,1,0],])
-print a
-purity=Purity()
-Set=purity.Divide(a)
-b=set([0,3])
-print Set[1]&b
-print Set
-print purity.purity(Set, b)
-'''

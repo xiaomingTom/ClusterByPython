@@ -104,11 +104,10 @@ class SPL_W_kmeans:
             self.updataSamWeight()
             self.updataCentroids()
             self.updateAttrWeight()
-         
+        return self.Assment,self.centroids,self.attrWeight,self.samWeight
+'''         
 dataMat=[[0,0],[0,1],[1,0],[1,1],[4,4],[4,5],[5,4],[5,5]]
 kmeans=SPL_W_kmeans(2,1.5,1.2,1,dataMat)
-
-'''
 kmeans.Cent()
 kmeans.updateAssment()
 kmeans.updataSamWeight()
@@ -119,9 +118,9 @@ print kmeans.samWeight
 kmeans.updataCentroids()
 print numpy.mat(kmeans.centroids)
 kmeans.updateAttrWeight()
-'''
 kmeans.kmeans()
 print numpy.mat(kmeans.Assment)
 print numpy.mat(kmeans.centroids)
 print numpy.mat(kmeans.attrWeight)
 print kmeans.samWeight
+'''
