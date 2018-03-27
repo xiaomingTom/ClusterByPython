@@ -69,15 +69,13 @@ def Cent(dataSet, k):
 '''自步学习kmeans聚类函数'''
 def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
     n = numpy.shape(dataSet)[1]
-    #print 'n=',n
     #create mat to assign data points 
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
     #to a centroid, also holds SE of each point
     centroids = createCent(dataSet, k)
     clusterChanged = True
     weight=[]
-    #print 'centroids.shape='+numpy.shape(centroids).__str__()
-    #print 'clusterAssment.shape='+numpy.shape(clusterAssment).__str__()
+    flag=True
     while clusterChanged:
         clusterChanged = False
         for i in range(n):#for each data point assign it to the closest centroid
@@ -85,7 +83,6 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
             minIndex = -1
             for j in range(k):
                 distJI = distMeas(centroids[:,j],dataSet[:,i])
-                #print distJI.tolist()
                 if distJI < minDist:
                     minDist = distJI; minIndex = j 
             if clusterAssment[minIndex,i] != 1:
@@ -97,6 +94,16 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
             ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
             centroids[cent,:] = mean(ptsInClust, axis=0) #assign centroid to mean 
         '''
+        dist=[]
+        if flag:
+            flag=False
+            for g in range(n):
+                dist.append(distMeas(dataSet[:,g],centroids*clusterAssment[:,g])[0,0]**2)
+            print dist
+            print 'mean=',numpy.mean(dist)
+            print 'variance=',numpy.var(dist)
+            Lambda=input('input Lambda:\n')
+            mu=input('input mu:\n')
         #update the weight of the samples
         weight=[]
         e=numpy.e
@@ -106,11 +113,9 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
                 weight.append(0)
             else:
                 weight.append( (1+e**(-1/Lambda)) / (1+e**(dist**2-1/Lambda)) )
-            #weight.append( (1+e**(-1/Lambda)) / (1+e**(dist**2-1/Lambda)) )
         #recalculate centroids
         W=numpy.diag(numpy.sqrt(weight))
         centroids = (dataSet*W*W.T*clusterAssment.T)*((clusterAssment*W*W.T*clusterAssment.T).I)
-        #centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
         Lambda/=mu
     return centroids, clusterAssment,weight
      

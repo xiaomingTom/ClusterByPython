@@ -48,10 +48,10 @@ for i in range(centerNum):
 print 'the Purity=',purityTotal/(numpy.shape(dataMat)[1])
 probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
                     for i in range(centerNum)])
-print probMatr
+#print probMatr
 hungary=Hungary(probMatr)
 matchMatr=hungary.hungary()
-print matchMatr
+#print matchMatr
 total=0
 for i in range(centerNum):
     for j in range(centerNum):
