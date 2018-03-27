@@ -1,6 +1,7 @@
-#ecoding=utf-8 
+#coding=utf-8 
 import numpy
 from matplotlib import pyplot as plt
+from sympy.geometry.util import centroid
 
 '''数据加载函数''' 
 def loadDataSet(fileName):
@@ -16,9 +17,20 @@ def loadDataSet(fileName):
 '''欧式距离计算函数'''
 def distEclud(vecA, vecB):
     return numpy.sqrt(sum(numpy.power(vecA - vecB, 2)))
- 
-'''获取初始聚类中心'''
-def randCent(dataSet, k):
+
+'''获取随机初始聚类中心'''
+def randCent(dataSet,k):
+    dim , dataNum= numpy.shape(dataSet)
+    centroids = numpy.mat(numpy.zeros((dim,k)))
+    centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]       
+    for j in range(dim):
+        minJ = min(numpy.array(dataSet)[j])
+        rangeJ = max(numpy.array(dataSet)[j])  - minJ 
+        centroids[j,:] = minJ + rangeJ * numpy.random.rand(1,k)
+    return centroids
+
+'''获取离散程度尽量大的初始聚类中心'''    
+def disperseCent(dataSet,k):
     dim , dataNum= numpy.shape(dataSet)
     centroids = numpy.mat(numpy.zeros((dim,k)))
     centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]
@@ -33,17 +45,29 @@ def randCent(dataSet, k):
                 maxDist=dist
                 maxIndex=j
         centroids[:,i]=dataSet[:,maxIndex]
-    return centroids       
-    '''       
-    for j in range(dim):
-        minJ = min(numpy.array(dataSet)[j])
-        rangeJ = max(numpy.array(dataSet)[j])  - minJ 
-        centroids[j,:] = minJ + rangeJ * numpy.random.rand(1,k)
     return centroids
-    '''
+
+'''获取初始聚类中心(最优方法)'''
+def Cent(dataSet, k):
+    dim , dataNum= numpy.shape(dataSet)
+    centroids = numpy.mat(numpy.zeros((dim,k)))
+    centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]
+    for i in range(1,k):
+        distSum=0
+        probList=[]
+        for j in range(dataNum):
+            dist=0
+            for g in range(i):
+                dist+=distEclud(dataSet[:,j], centroids[:,g])
+            distSum+=dist[0,0]
+            probList.append(dist[0,0])
+        probList=[probList[s]/distSum for s in range(len(probList))]
+        Index=numpy.random.multinomial(1,probList) 
+        centroids[:,i]=dataSet[:,Index.tolist().index(1)]
+    return centroids       
     
 '''自步学习kmeans聚类函数'''
-def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent):
+def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
     n = numpy.shape(dataSet)[1]
     #print 'n=',n
     #create mat to assign data points 
@@ -78,13 +102,11 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
         e=numpy.e
         for i in range(n):
             dist=distMeas(dataSet[:,i], centroids[:,numpy.array(clusterAssment)[:,i].tolist().index(1)]).tolist()[0][0]
-            '''
-            if 10*dist<1/Lambda:
-                weight.append(1)
+            if dist**2-1/Lambda>3:
+                weight.append(0)
             else:
-                weight.append( (1+e**(-1/Lambda)) / (1+e**(dist-1/Lambda)) )
-            '''
-            weight.append( (1+e**(-1/Lambda)) / (1+e**(dist-1/Lambda)) )
+                weight.append( (1+e**(-1/Lambda)) / (1+e**(dist**2-1/Lambda)) )
+            #weight.append( (1+e**(-1/Lambda)) / (1+e**(dist**2-1/Lambda)) )
         #recalculate centroids
         W=numpy.diag(numpy.sqrt(weight))
         centroids = (dataSet*W*W.T*clusterAssment.T)*((clusterAssment*W*W.T*clusterAssment.T).I)
@@ -93,7 +115,7 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=randCent
     return centroids, clusterAssment,weight
      
 '''keans算法'''
-def kMeans(dataSet, k,distMeas=distEclud, createCent=randCent):     
+def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):     
     n = numpy.shape(dataSet)[1]
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
     #to a centroid, also holds SE of each point

@@ -1,4 +1,4 @@
-#ecoding=utf-8
+#coding=utf-8
 from Test.SPL_kmeans import *
 from Test.Purity import Purity
 from Test.Hungary import Hungary
@@ -11,7 +11,7 @@ def main():
     centerNum = input('please input the number of the center:\n')
     Lambda = input('please input Lambda:\n')
     mu = input('please input mu(mu>1):\n')
-    '''-
+    '''
     myCentroids,clustAssing=kMeans(dataMat, centerNum)
     show(dataMat, 4, myCentroids, clustAssing)
     '''
