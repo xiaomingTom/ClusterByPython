@@ -31,9 +31,8 @@ for i in range(len(lable)):
 realAssment=numpy.mat(realAssment).T
 centerNum = input('please input the number of the center:\n')
 Lambda = input('please input Lambda(Lambda>0):\n')
-mu = input('please input mu(mu>1):\n')
 eta=input('please input eta(eta>0):\n')
-kmeans=SPL_W_kmeans(centerNum,Lambda,mu,eta,dataMat)
+kmeans=SPL_W_kmeans(centerNum,Lambda,eta,dataMat)
 clusterAssing,myCentroids,attrWeight,samWeight=kmeans.kmeans()
 print 'centoids=\n',myCentroids
 print 'attrWeight=\n',attrWeight

@@ -57,17 +57,22 @@ def Cent(dataSet, k):
         probList=[]
         for j in range(dataNum):
             dist=0
+            #minDist=numpy.inf
             for g in range(i):
-                dist+=distEclud(dataSet[:,j], centroids[:,g])
-            distSum+=dist[0,0]
-            probList.append(dist[0,0])
+                dist+=distEclud(dataSet[:,j], centroids[:,g])[0,0]
+                '''
+                if dist<minDist:
+                    minDist=dist[0,0]
+                '''
+            distSum+=dist
+            probList.append(dist)
         probList=[probList[s]/distSum for s in range(len(probList))]
         Index=numpy.random.multinomial(1,probList) 
         centroids[:,i]=dataSet[:,Index.tolist().index(1)]
     return centroids       
     
 '''自步学习kmeans聚类函数'''
-def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
+def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent):
     n = numpy.shape(dataSet)[1]
     #create mat to assign data points 
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
@@ -99,11 +104,9 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
             flag=False
             for g in range(n):
                 dist.append(distMeas(dataSet[:,g],centroids*clusterAssment[:,g])[0,0]**2)
-            print dist
+            #print dist
             print 'mean=',numpy.mean(dist)
             print 'variance=',numpy.var(dist)
-            Lambda=input('input Lambda:\n')
-            mu=input('input mu:\n')
         #update the weight of the samples
         weight=[]
         e=numpy.e
@@ -116,7 +119,6 @@ def SPL_kMeans(dataSet, k, Lambda , mu , distMeas=distEclud, createCent=Cent):
         #recalculate centroids
         W=numpy.diag(numpy.sqrt(weight))
         centroids = (dataSet*W*W.T*clusterAssment.T)*((clusterAssment*W*W.T*clusterAssment.T).I)
-        Lambda/=mu
     return centroids, clusterAssment,weight
      
 '''keans算法'''

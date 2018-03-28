@@ -32,8 +32,7 @@ realAssment=numpy.mat(realAssment).T
 
 centerNum = input('please input the number of the center:\n')
 Lambda = input('please input Lambda:\n')
-mu = input('please input mu(mu>1):\n')
-myCentroids,clusterAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda,mu)
+myCentroids,clusterAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda)
 #myCentroids,clusterAssing=kMeans(dataMat, centerNum)
 show(dataMat, 4, myCentroids, clusterAssing)
 print weight
@@ -48,7 +47,7 @@ for i in range(centerNum):
 print 'the Purity=',purityTotal/(numpy.shape(dataMat)[1])
 probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
                     for i in range(centerNum)])
-#print probMatr
+
 hungary=Hungary(probMatr)
 matchMatr=hungary.hungary()
 #print matchMatr
