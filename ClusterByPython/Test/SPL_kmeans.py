@@ -2,6 +2,7 @@
 import numpy
 from matplotlib import pyplot as plt
 from sympy.geometry.util import centroid
+from scipy import cluster
 
 '''数据加载函数''' 
 def loadDataSet(fileName):
@@ -57,15 +58,13 @@ def Cent(dataSet, k):
         probList=[]
         for j in range(dataNum):
             dist=0
-            #minDist=numpy.inf
+            minDist=numpy.inf
             for g in range(i):
-                dist+=distEclud(dataSet[:,j], centroids[:,g])[0,0]
-                '''
+                dist=distEclud(dataSet[:,j], centroids[:,g])[0,0]
                 if dist<minDist:
-                    minDist=dist[0,0]
-                '''
-            distSum+=dist
-            probList.append(dist)
+                    minDist=dist
+            distSum+=minDist
+            probList.append(minDist)
         probList=[probList[s]/distSum for s in range(len(probList))]
         Index=numpy.random.multinomial(1,probList) 
         centroids[:,i]=dataSet[:,Index.tolist().index(1)]
@@ -128,8 +127,13 @@ def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):
     #to a centroid, also holds SE of each point
     centroids = createCent(dataSet, k)
     clusterChanged = True
+    times=0
     while clusterChanged:
         clusterChanged = False
+        if times>50:
+            break
+        print times
+        times+=1
         for i in range(n):#for each data point assign it to the closest centroid
             minDist = numpy.inf
             minIndex = -1
@@ -142,12 +146,16 @@ def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):
                 clusterChanged = True
                 clusterAssment[:,i] = 0
                 clusterAssment[minIndex,i]=1
-        '''
-        for cent in range(k):#recalculate centroids
-            ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
-            centroids[cent,:] = mean(ptsInClust, axis=0) #assign centroid to mean 
-        '''
-        centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+        #更新中心矩阵
+        clusSize=[0]*k
+        centroids*=0
+        for i in range(n):
+            for j in range(k):
+                centroids[:,j]+=dataSet[:,i]*clusterAssment[j,i]
+                clusSize[j]+=clusterAssment[j,i]
+        for i in range(k):
+            centroids[:,i]/=clusSize[i]
+        #centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
     return centroids, clusterAssment
 
 '''画图函数'''    

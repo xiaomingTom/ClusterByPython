@@ -10,7 +10,6 @@ def main():
     dataMat = loadDataSet("D:/DataSet.txt")
     centerNum = input('please input the number of the center:\n')
     Lambda = input('please input Lambda:\n')
-    '''
     myCentroids,clustAssing=kMeans(dataMat, centerNum)
     show(dataMat, 4, myCentroids, clustAssing)
     '''
@@ -19,7 +18,7 @@ def main():
     print clustAssing
     print weight
     show(dataMat, 4, myCentroids, clustAssing)
-    
+    '''
     clusterAssing2=clustAssing[:,[i for i in range(0,numpy.shape(clustAssing)[1]-50)] ]
     realAssment = loadDataSet("c:/Assment.txt")
     purity=Purity()
