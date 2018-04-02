@@ -28,5 +28,5 @@ def evaluate(clusterAssing,realAssment,dataMat,myCentroids):
     print 'the Accuracy=',total/(numpy.shape(dataMat)[1])
     nmi=NMI(clusterVSet,realVSet)
     print 'nmi=',nmi.nmi()
-    dbi=DBI(dataMat,myCentroids,clusterVSet)
-    print 'DBI=',dbi.dbi()
+    #dbi=DBI(dataMat,myCentroids,clusterVSet)
+    #print 'DBI=',dbi.dbi()

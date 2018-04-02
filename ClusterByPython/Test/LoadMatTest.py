@@ -1,4 +1,5 @@
-#coding=utf-8
+#coding:utf-8
+#sys.stdout=codecs.getwriter('utf8')(sys.stdout)
 import scipy.io as sio
 import numpy as ny
 from SPL_kmeans import kMeans
@@ -11,7 +12,13 @@ def cut(data=ny.array([[]])):
     return dataCut
 
 load_data=sio.loadmat("D:\dataSet\handwritten.mat")
-dataMat=load_data['pixel']
+dataMat=load_data['fourier']
+dataMat=ny.hstack((dataMat,load_data['kar']))
+dataMat=ny.hstack((dataMat,load_data['mor']))
+dataMat=ny.hstack((dataMat,load_data['pixel']))    
+dataMat=ny.hstack((dataMat,load_data['profile']))
+dataMat=ny.hstack((dataMat,load_data['zer'])) 
+print '数据加载完毕'               
 gnd=load_data['gnd']
 realAssment=[]
 temp=ny.eye(10)
@@ -20,6 +27,7 @@ temp=ny.eye(10)
 for i in range(gnd.shape[0]):
     realAssment.append(temp[gnd[i,0]].tolist())#创建真实分配矩阵
 #print dataMat.shape
+print '真实分配矩阵创建完毕，开始聚类'
 centroids,Assment=kMeans(ny.mat(dataMat).T, 10)
 print '聚类结束'
 evaluate(Assment, ny.mat(realAssment).T, ny.mat(dataMat).T, centroids)

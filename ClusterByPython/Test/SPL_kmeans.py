@@ -1,8 +1,7 @@
 #coding=utf-8 
 import numpy
+import time
 from matplotlib import pyplot as plt
-from sympy.geometry.util import centroid
-from scipy import cluster
 
 '''数据加载函数''' 
 def loadDataSet(fileName):
@@ -130,8 +129,6 @@ def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):
     times=0
     while clusterChanged:
         clusterChanged = False
-        if times>50:
-            break
         print times
         times+=1
         for i in range(n):#for each data point assign it to the closest centroid
@@ -147,6 +144,7 @@ def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):
                 clusterAssment[:,i] = 0
                 clusterAssment[minIndex,i]=1
         #更新中心矩阵
+        '''
         clusSize=[0]*k
         centroids*=0
         for i in range(n):
@@ -155,7 +153,8 @@ def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):
                 clusSize[j]+=clusterAssment[j,i]
         for i in range(k):
             centroids[:,i]/=clusSize[i]
-        #centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+        '''
+        centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
     return centroids, clusterAssment
 
 '''画图函数'''    
