@@ -41,11 +41,11 @@ class MSPL:
     def Cent(self):
         index=int(ny.random.rand()*self.dataNum)
         self.setCentroid(index, 0)
-        #num用于后续每次聚类中心选取的候选数据点数
-        #num=min(max(self.centerNum*10,int(ny.sqrt(self.dataNum))),self.dataNum)
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
-            probList=[]
+            #probList=[]
+            maxDist=0
+            maxIndex=-1
             for j in range(self.dataNum):
                 #index=int(ny.random.rand()*self.dataNum)
                 minDist=ny.inf
@@ -53,11 +53,16 @@ class MSPL:
                     dist=self.distDataCen(j, k)
                     if dist<minDist:
                         minDist=dist
+                if minDist>maxDist:
+                    maxDist,maxIndex=minDist,j
+                '''
                 probList.append(minDist)
             #probList标准化
             probList=(ny.array(probList)/sum(probList)).tolist()
             index=ny.random.multinomial(1,probList).tolist().index(1)
             self.setCentroid(index, i)
+            '''
+            self.setCentroid(maxIndex, i)
 
     '''更新分配矩阵函数'''
     def updataAssment(self):
@@ -118,18 +123,21 @@ class MSPL:
                 self.centroids[v][:,l]/=clusSize[l]
 
     def mspl(self):
+        times=0
         self.Cent()
         aFlag=self.updataAssment()
         wFlag=self.updateWeight()
         while aFlag or wFlag:
+            print times
+            times+=1
             self.updateCentroids()
             aFlag=self.updataAssment()
             wFlag=self.updateWeight()
-        
-'''            
+  
+'''               
 view1=ny.mat([[0,0],[0,1],[1,0],[1,1],[4,4],[4,5],[5,4],[5,5]]).T
 view2=ny.mat([[0,4,0],[1,4,0],[0,5,0],[1,5,0],[4,0,0],[4,1,0],[5,0,0],[5,1,0]]).T
-mspl=MSPL(2,1,1.2,[view1,view2])
+mspl=MSPL(2,2,1.2,[view1,view2])
 mspl.mspl()
 print mspl.centroids[0]
 print mspl.centroids[1],'\n'

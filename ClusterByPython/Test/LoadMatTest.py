@@ -13,11 +13,13 @@ def cut(data=ny.array([[]])):
 
 load_data=sio.loadmat("D:\dataSet\handwritten.mat")
 dataMat=load_data['fourier']
+'''
 dataMat=ny.hstack((dataMat,load_data['kar']))
 dataMat=ny.hstack((dataMat,load_data['mor']))
 dataMat=ny.hstack((dataMat,load_data['pixel']))    
 dataMat=ny.hstack((dataMat,load_data['profile']))
 dataMat=ny.hstack((dataMat,load_data['zer'])) 
+'''
 print '数据加载完毕'               
 gnd=load_data['gnd']
 realAssment=[]
@@ -30,4 +32,4 @@ for i in range(gnd.shape[0]):
 print '真实分配矩阵创建完毕，开始聚类'
 centroids,Assment=kMeans(ny.mat(dataMat).T, 10)
 print '聚类结束'
-evaluate(Assment, ny.mat(realAssment).T, ny.mat(dataMat).T, centroids)
+evaluate(Assment, ny.mat(realAssment).T)

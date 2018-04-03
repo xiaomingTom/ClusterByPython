@@ -4,10 +4,10 @@ import numpy
 from Purity import Purity
 from Hungary import Hungary
 from NMI import NMI 
-from DBI import DBI
+#from DBI import DBI
 
-def evaluate(clusterAssing,realAssment,dataMat,myCentroids):
-    centerNum=numpy.shape(myCentroids)[1]
+def evaluate(clusterAssing,realAssment):
+    centerNum,dataNum=clusterAssing.shape
     purity=Purity()
     clusterVSet=purity.Divide(clusterAssing)
     realVSet=purity.Divide(realAssment)    
@@ -16,7 +16,7 @@ def evaluate(clusterAssing,realAssment,dataMat,myCentroids):
         pur=purity.purity(realVSet, clusterVSet[i])
         print "pur",i,"=",pur
         purityTotal+=pur*len(clusterVSet[i])
-    print 'the Purity=',purityTotal/(numpy.shape(dataMat)[1])
+    print 'the Purity=',purityTotal/dataNum
     probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
                     for i in range(centerNum)])
     hungary=Hungary(probMatr)
@@ -25,7 +25,7 @@ def evaluate(clusterAssing,realAssment,dataMat,myCentroids):
     for i in range(centerNum):
         for j in range(centerNum):
             total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
-    print 'the Accuracy=',total/(numpy.shape(dataMat)[1])
+    print 'the Accuracy=',total/dataNum
     nmi=NMI(clusterVSet,realVSet)
     print 'nmi=',nmi.nmi()
     #dbi=DBI(dataMat,myCentroids,clusterVSet)

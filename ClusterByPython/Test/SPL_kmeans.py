@@ -47,6 +47,26 @@ def disperseCent(dataSet,k):
         centroids[:,i]=dataSet[:,maxIndex]
     return centroids
 
+def Cent2(dataSet,k):
+    dim , dataNum= numpy.shape(dataSet)
+    centroids = numpy.mat(numpy.zeros((dim,k)))
+    centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]
+    for i in range(1,k):
+        distSum=0
+        maxDist=0
+        maxIndex=-1
+        for j in range(dataNum):
+            dist=0
+            minDist=numpy.inf
+            for g in range(i):
+                dist=distEclud(dataSet[:,j], centroids[:,g])[0,0]
+                if dist<minDist:
+                    minDist=dist
+            if minDist>maxDist:
+                maxDist,maxIndex=minDist,j
+        centroids[:,i]=dataSet[:,maxIndex]
+    return centroids       
+
 '''获取初始聚类中心(最优方法)'''
 def Cent(dataSet, k):
     dim , dataNum= numpy.shape(dataSet)
@@ -70,7 +90,7 @@ def Cent(dataSet, k):
     return centroids       
     
 '''自步学习kmeans聚类函数'''
-def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent):
+def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=Cent):
     n = numpy.shape(dataSet)[1]
     #create mat to assign data points 
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
@@ -120,7 +140,7 @@ def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent
     return centroids, clusterAssment,weight
      
 '''keans算法'''
-def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent):     
+def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent2):     
     n = numpy.shape(dataSet)[1]
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
     #to a centroid, also holds SE of each point
