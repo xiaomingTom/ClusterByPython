@@ -43,9 +43,9 @@ class MSPL:
         self.setCentroid(index, 0)
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
-            #probList=[]
-            maxDist=0
-            maxIndex=-1
+            probList=[]
+            #maxDist=0
+            #maxIndex=-1
             for j in range(self.dataNum):
                 #index=int(ny.random.rand()*self.dataNum)
                 minDist=ny.inf
@@ -53,16 +53,12 @@ class MSPL:
                     dist=self.distDataCen(j, k)
                     if dist<minDist:
                         minDist=dist
-                if minDist>maxDist:
-                    maxDist,maxIndex=minDist,j
-                '''
                 probList.append(minDist)
             #probList标准化
             probList=(ny.array(probList)/sum(probList)).tolist()
             index=ny.random.multinomial(1,probList).tolist().index(1)
             self.setCentroid(index, i)
-            '''
-            self.setCentroid(maxIndex, i)
+            #self.setCentroid(maxIndex, i)
 
     '''更新分配矩阵函数'''
     def updataAssment(self):
@@ -122,10 +118,17 @@ class MSPL:
             for l in range(self.centerNum):
                 self.centroids[v][:,l]/=clusSize[l]
 
+    def means(self):
+        m=0
+        for v in range(self.viewNum):
+            m+=ny.trace((self.dataSet[v]-self.centroids[v]*self.Assment)*(self.dataSet[v]-self.centroids[v]*self.Assment).T)
+        return m/self.dataNum/self.viewNum
+
     def mspl(self):
         times=0
         self.Cent()
         aFlag=self.updataAssment()
+        print 'mean=',self.means()
         wFlag=self.updateWeight()
         while aFlag or wFlag:
             print times
@@ -133,8 +136,8 @@ class MSPL:
             self.updateCentroids()
             aFlag=self.updataAssment()
             wFlag=self.updateWeight()
-  
-'''               
+               
+'''
 view1=ny.mat([[0,0],[0,1],[1,0],[1,1],[4,4],[4,5],[5,4],[5,5]]).T
 view2=ny.mat([[0,4,0],[1,4,0],[0,5,0],[1,5,0],[4,0,0],[4,1,0],[5,0,0],[5,1,0]]).T
 mspl=MSPL(2,2,1.2,[view1,view2])
