@@ -41,13 +41,13 @@ class MSPL:
     def Cent(self):
         index=int(ny.random.rand()*self.dataNum)
         self.setCentroid(index, 0)
+        print 'c0=',index
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
             probList=[]
             #maxDist=0
             #maxIndex=-1
             for j in range(self.dataNum):
-                #index=int(ny.random.rand()*self.dataNum)
                 minDist=ny.inf
                 for k in range(i):
                     dist=self.distDataCen(j, k)
@@ -58,7 +58,26 @@ class MSPL:
             probList=(ny.array(probList)/sum(probList)).tolist()
             index=ny.random.multinomial(1,probList).tolist().index(1)
             self.setCentroid(index, i)
-            #self.setCentroid(maxIndex, i)
+            print 'c',i,'=',index
+            
+    def Cent2(self):
+        index=int(ny.random.rand()*self.dataNum)
+        self.setCentroid(index, 0)
+        print 'c0=',index
+        for i in range(1,self.centerNum):
+            '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
+            maxDist=0
+            maxIndex=-1
+            for j in range(self.dataNum):
+                minDist=ny.inf
+                for k in range(i):
+                    dist=self.distDataCen(j, k)
+                    if dist<minDist:
+                        minDist=dist
+                if minDist>maxDist:
+                    maxDist,maxIndex=minDist,j
+            self.setCentroid(maxIndex, i)
+            print 'c',i,'=',maxIndex
 
     '''更新分配矩阵函数'''
     def updataAssment(self):
@@ -128,7 +147,8 @@ class MSPL:
         times=0
         self.Cent()
         aFlag=self.updataAssment()
-        print 'mean=',self.means()
+        self.Lambda=1./self.means()
+        print 'mean=',1./self.Lambda
         wFlag=self.updateWeight()
         while aFlag or wFlag:
             print times

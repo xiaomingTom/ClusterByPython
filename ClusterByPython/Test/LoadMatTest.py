@@ -12,7 +12,7 @@ def cut(data=ny.array([[]])):
     return dataCut
 
 load_data=sio.loadmat("D:\dataSet\handwritten.mat")
-dataMat=load_data['fourier']
+dataMat=load_data['profile']
 '''
 dataMat=ny.hstack((dataMat,load_data['kar']))
 dataMat=ny.hstack((dataMat,load_data['mor']))

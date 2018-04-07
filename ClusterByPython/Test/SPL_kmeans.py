@@ -90,7 +90,7 @@ def Cent(dataSet, k):
     return centroids       
     
 '''自步学习kmeans聚类函数'''
-def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=Cent):
+def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent):
     n = numpy.shape(dataSet)[1]
     #create mat to assign data points 
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
