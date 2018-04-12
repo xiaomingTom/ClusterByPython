@@ -41,7 +41,7 @@ class SPL_W_kmeans:
             probList=(numpy.array(probList)).tolist()
             #用距离比作参数产生一个满足多项分布的随机数，将数据集中下标为这个随机数的点作为新的聚类中心
             Index=numpy.random.multinomial(1,probList) 
-            self.centroids[i]=self.dataMat[Index.tolist().index(1)] 
+            self.centroids[i]=list(self.dataMat[Index.tolist().index(1)])
         
         
     '''更新分配矩阵assment函数'''

@@ -12,14 +12,12 @@ def cut(data=ny.array([[]])):
     return dataCut
 
 load_data=sio.loadmat("D:\dataSet\handwritten.mat")
-dataMat=load_data['profile']
-'''
-dataMat=ny.hstack((dataMat,load_data['kar']))
-dataMat=ny.hstack((dataMat,load_data['mor']))
-dataMat=ny.hstack((dataMat,load_data['pixel']))    
-dataMat=ny.hstack((dataMat,load_data['profile']))
-dataMat=ny.hstack((dataMat,load_data['zer'])) 
-'''
+dataMat=load_data['kar']
+#dataMat=ny.hstack((dataMat,load_data['fourier']))
+#dataMat=ny.hstack((dataMat,load_data['mor']))
+#dataMat=ny.hstack((dataMat,load_data['pixel']))    
+#dataMat=ny.hstack((dataMat,load_data['profile']))
+#dataMat=ny.hstack((dataMat,load_data['zer'])) 
 print '数据加载完毕'               
 gnd=load_data['gnd']
 realAssment=[]

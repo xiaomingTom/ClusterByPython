@@ -47,6 +47,14 @@ def disperseCent(dataSet,k):
         centroids[:,i]=dataSet[:,maxIndex]
     return centroids
 
+def cent(dataSet,k):
+    dim = numpy.shape(dataSet)[0]
+    centroids = numpy.mat(numpy.zeros((dim,k)))
+    for i in range(k):
+        index=int(numpy.random.rand()*200)+i*200
+        centroids[:,i]=dataSet[:,index]
+    return centroids
+
 def Cent2(dataSet,k):
     dim , dataNum= numpy.shape(dataSet)
     centroids = numpy.mat(numpy.zeros((dim,k)))
@@ -140,11 +148,12 @@ def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent
     return centroids, clusterAssment,weight
      
 '''keans算法'''
-def kMeans(dataSet, k,distMeas=distEclud, createCent=Cent2):     
+def kMeans(dataSet, k,centroids=None,distMeas=distEclud, createCent=cent):     
     n = numpy.shape(dataSet)[1]
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
     #to a centroid, also holds SE of each point
-    centroids = createCent(dataSet, k)
+    if centroids==None:
+        centroids = createCent(dataSet, k)
     clusterChanged = True
     times=0
     while clusterChanged:

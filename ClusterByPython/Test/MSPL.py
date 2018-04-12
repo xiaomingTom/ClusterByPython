@@ -1,7 +1,9 @@
 #coding=utf-8
 import numpy as ny
+
+
 class MSPL:
-    def __init__(self,centerNum,Lambda,mu,dataSet=[ny.mat([[]])]):
+    def __init__(self,centerNum,Lambda,mu,dataSet=[ny.mat([[]])],centroids=None):
         self.dataSet=dataSet
         self.centerNum=centerNum
         self.Lambda=Lambda
@@ -11,7 +13,14 @@ class MSPL:
         self.dims=[dataSet[i].shape[0] for i in range(self.viewNum)]
         self.weight=[[1]*self.dataNum for i in range(self.viewNum)]
         #聚类中心集初始化
-        self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
+        if centroids!=None:
+            '''centroids的深度拷贝'''
+            self.centroids=[]
+            for i in range(self.viewNum):
+                self.centroids.append(ny.mat(centroids[i].tolist()))
+        else:
+            self.centroids=None
+        #self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
         self.Assment=ny.mat(ny.zeros((centerNum,self.dataNum)))
     
     '''将第dataIndex个实例作为第cenIndex个聚类中心'''
@@ -42,43 +51,43 @@ class MSPL:
         index=int(ny.random.rand()*self.dataNum)
         self.setCentroid(index, 0)
         print 'c0=',index
+        probList=[ny.inf]*self.dataNum
+        box=[0]*10
+        box[index/200]=1
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
-            probList=[]
-            #maxDist=0
-            #maxIndex=-1
             for j in range(self.dataNum):
-                minDist=ny.inf
-                for k in range(i):
-                    dist=self.distDataCen(j, k)
-                    if dist<minDist:
-                        minDist=dist
-                probList.append(minDist)
-            #probList标准化
-            probList=(ny.array(probList)/sum(probList)).tolist()
-            index=ny.random.multinomial(1,probList).tolist().index(1)
+                probList[j]=min(probList[j],self.distDataCen(j, i-1))
+            probList2=(ny.array(probList)/sum(probList)).tolist()
+            index=ny.random.multinomial(1,probList2).tolist().index(1)
             self.setCentroid(index, i)
+            box[index/200]=box[index/200]+1
             print 'c',i,'=',index
+        print box
             
     def Cent2(self):
         index=int(ny.random.rand()*self.dataNum)
         self.setCentroid(index, 0)
         print 'c0=',index
+        minDist=[ny.inf]*self.dataNum
+        box=[0]*10
+        box[index/200]=1
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
-            maxDist=0
-            maxIndex=-1
             for j in range(self.dataNum):
-                minDist=ny.inf
-                for k in range(i):
-                    dist=self.distDataCen(j, k)
-                    if dist<minDist:
-                        minDist=dist
-                if minDist>maxDist:
-                    maxDist,maxIndex=minDist,j
-            self.setCentroid(maxIndex, i)
-            print 'c',i,'=',maxIndex
-
+                minDist[j]=min(minDist[j],self.distDataCen(j, i-1))
+            index=minDist.index(max(minDist))
+            self.setCentroid(index, i)
+            print 'c',i,'=',index
+            box[index/200]=box[index/200]+1
+        print box
+        
+    def Cent3(self):
+        for i in range(self.centerNum):
+            index=int(ny.random.rand()*200)+i*200
+            print index
+            self.setCentroid(index, i)
+        
     '''更新分配矩阵函数'''
     def updataAssment(self):
         changeFlag=False
@@ -145,7 +154,9 @@ class MSPL:
 
     def mspl(self):
         times=0
-        self.Cent()
+        if self.centroids==None:
+            self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
+            self.Cent3()
         aFlag=self.updataAssment()
         self.Lambda=1./self.means()
         print 'mean=',1./self.Lambda
