@@ -142,7 +142,6 @@ class MSPL:
                 for j in range(self.centerNum):
                     self.centroids[v][:,j]+=self.Assment[j,i]*self.weight[v][i]*self.dataSet[v][:,i]
                     clusSize[j]+=self.Assment[j,i]*self.weight[v][i]
-        for v in range(self.viewNum):
             for l in range(self.centerNum):
                 self.centroids[v][:,l]/=clusSize[l]
 
