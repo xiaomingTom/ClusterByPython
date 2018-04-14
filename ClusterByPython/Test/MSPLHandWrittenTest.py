@@ -7,12 +7,12 @@ from Normalize import Normalize
 
 matFile=sio.loadmat("D:\dataSet\handwritten.mat")
 dataSet=[]
-dataSet.append(ny.mat(matFile['mor']).T)
-dataSet.append(ny.mat(matFile['fourier']).T)
+#dataSet.append(ny.mat(matFile['mor']).T)
+#dataSet.append(ny.mat(matFile['fourier']).T)
 dataSet.append(ny.mat(matFile['pixel']).T)
-dataSet.append(ny.mat(matFile['kar']).T)
-dataSet.append(ny.mat(matFile['profile']).T)
-dataSet.append(ny.mat(matFile['zer']).T)
+#dataSet.append(ny.mat(matFile['kar']).T)
+#dataSet.append(ny.mat(matFile['profile']).T)
+#dataSet.append(ny.mat(matFile['zer']).T)
 nor=Normalize()
 dataSet=nor.normalize(dataSet)
 dataSet=[dataSet[i]*20 for i in range(len(dataSet))]

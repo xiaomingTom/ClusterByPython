@@ -1,6 +1,6 @@
 #coding=utf-8
 import numpy as ny
-
+import time
 
 class MSPL:
     def __init__(self,centerNum,Lambda,mu,dataSet=[ny.mat([[]])],centroids=None):
@@ -91,14 +91,21 @@ class MSPL:
     '''更新分配矩阵函数'''
     def updataAssment(self):
         changeFlag=False
+        dist=ny.mat(ny.zeros((1,self.centerNum)))
         for i in range(self.dataNum):
-            minDist=ny.inf
+            #minDist=ny.inf
             minIndex=-1
+            dist*=0
+            for v in range(self.viewNum):
+                dist+=(ny.power(ny.tile(self.dataSet[v][:,i],(1,self.centerNum))-self.centroids[v],2)*self.weight[v][i]).sum(0)
+            minIndex=ny.argmin(dist)
+            '''
             for j in range(self.centerNum):
                 dist=self.distDataCen(i, j)
                 if dist<minDist:
                     minDist=dist
                     minIndex=j
+            '''
             if self.Assment[minIndex,i]!=1:
                 changeFlag=True
                 self.Assment[:,i]=0
@@ -118,7 +125,7 @@ class MSPL:
         for v in range(self.viewNum):
             for i in range(self.dataNum):
                 l=self.loss(v,i)
-                if l-1./self.Lambda>3:
+                if l-1./self.Lambda>4:
                     self.weight[v][i]=0
                 else:
                     self.weight[v][i]=(1+e**(-1./self.Lambda))/(1+e**(l-1./self.Lambda))
@@ -155,40 +162,25 @@ class MSPL:
         times=0
         if self.centroids==None:
             self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
-            self.Cent3()
+            self.Cent()
         aFlag=self.updataAssment()
         self.Lambda=1./self.means()
         print 'mean=',1./self.Lambda
         wFlag=self.updateWeight()
+        t1,t2,t3=0,0,0
         while aFlag or wFlag:
-            print times
+            print times,t1,t2,t3
             times+=1
+            tmp1=time.time()
             self.updateCentroids()
+            tmp2=time.time()
+            t1+=tmp2-tmp1
+            tmp1=time.time()
             aFlag=self.updataAssment()
+            tmp2=time.time()
+            t2+=tmp2-tmp1
+            tmp1=time.time()
             wFlag=self.updateWeight()
+            tmp2=time.time()
+            t3+=tmp2-tmp1
                
-'''
-view1=ny.mat([[0,0],[0,1],[1,0],[1,1],[4,4],[4,5],[5,4],[5,5]]).T
-view2=ny.mat([[0,4,0],[1,4,0],[0,5,0],[1,5,0],[4,0,0],[4,1,0],[5,0,0],[5,1,0]]).T
-mspl=MSPL(2,2,1.2,[view1,view2])
-mspl.mspl()
-print mspl.centroids[0]
-print mspl.centroids[1],'\n'
-print mspl.Assment,'\n'
-print ny.mat(mspl.weight).T
-mspl.setCentroid(0, 0)
-mspl.Cent()
-print mspl.centroids[0]
-print mspl.centroids[1]
-mspl.updataAssment()
-print mspl.Assment
-mspl.updateWeight()
-print ny.mat(mspl.weight).T
-mspl.updateCentroids()
-print '\n'
-print mspl.centroids[0]
-print mspl.centroids[1],'\n'
-mspl.update2()
-print mspl.centroids[0]
-print mspl.centroids[1]
-'''
