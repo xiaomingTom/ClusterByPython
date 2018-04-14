@@ -60,7 +60,6 @@ def Cent2(dataSet,k):
     centroids = numpy.mat(numpy.zeros((dim,k)))
     centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]
     for i in range(1,k):
-        distSum=0
         maxDist=0
         maxIndex=-1
         for j in range(dataNum):
@@ -80,6 +79,7 @@ def Cent(dataSet, k):
     dim , dataNum= numpy.shape(dataSet)
     centroids = numpy.mat(numpy.zeros((dim,k)))
     centroids[:,0]=dataSet[:,int(numpy.random.rand() * dataNum)]
+    probList=[numpy.inf]*dataNum
     for i in range(1,k):
         distSum=0
         probList=[]
@@ -148,42 +148,35 @@ def SPL_kMeans(dataSet, k, Lambda  , distMeas=distEclud, createCent=disperseCent
     return centroids, clusterAssment,weight
      
 '''keans算法'''
-def kMeans(dataSet, k,centroids=None,distMeas=distEclud, createCent=cent):     
+def kMeans(dataSet, k,centroids=None,distMeas=distEclud, createCent=disperseCent):     
     n = numpy.shape(dataSet)[1]
     clusterAssment = numpy.mat(numpy.zeros((k,n)))
     #to a centroid, also holds SE of each point
-    if centroids==None:
+    if centroids is None:
         centroids = createCent(dataSet, k)
     clusterChanged = True
     times=0
     while clusterChanged:
         clusterChanged = False
-        print times
+        #print times
         times+=1
         for i in range(n):#for each data point assign it to the closest centroid
-            minDist = numpy.inf
-            minIndex = -1
+            #minDist = numpy.inf
+            minIndex=numpy.argmin(numpy.power(numpy.tile(dataSet[:,i],(1,k))-centroids,2).sum(0))
+            '''
             for j in range(k):
                 distJI = distMeas(centroids[:,j],dataSet[:,i])
                 #print distJI.tolist()
                 if distJI < minDist:
                     minDist = distJI; minIndex = j 
+            '''
             if clusterAssment[minIndex,i] != 1:
                 clusterChanged = True
                 clusterAssment[:,i] = 0
                 clusterAssment[minIndex,i]=1
         #更新中心矩阵
-        '''
-        clusSize=[0]*k
-        centroids*=0
-        for i in range(n):
-            for j in range(k):
-                centroids[:,j]+=dataSet[:,i]*clusterAssment[j,i]
-                clusSize[j]+=clusterAssment[j,i]
-        for i in range(k):
-            centroids[:,i]/=clusSize[i]
-        '''
         centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+    print times
     return centroids, clusterAssment
 
 '''画图函数'''    

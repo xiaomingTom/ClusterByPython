@@ -1,6 +1,6 @@
 #coding=utf-8
 import numpy as ny
-import time
+#import time
 
 class MSPL:
     def __init__(self,centerNum,Lambda,mu,dataSet=[ny.mat([[]])],centroids=None):
@@ -50,19 +50,26 @@ class MSPL:
     def Cent(self):
         index=int(ny.random.rand()*self.dataNum)
         self.setCentroid(index, 0)
-        print 'c0=',index
+        #print 'c0=',index
         probList=[ny.inf]*self.dataNum
         box=[0]*10
         box[index/200]=1
+        dist=ny.mat(ny.zeros((1,self.dataNum)))
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
+            dist*=0
+            for v in range(self.viewNum):
+                dist+=(ny.power(ny.tile(self.centroids[v][:,i-1], (1,self.dataNum))-self.dataSet[v],2)).sum(0)
+            probList=map(lambda x,y:min(x,y),probList,dist.tolist()[0])
+            '''
             for j in range(self.dataNum):
                 probList[j]=min(probList[j],self.distDataCen(j, i-1))
+            '''
             probList2=(ny.array(probList)/sum(probList)).tolist()
             index=ny.random.multinomial(1,probList2).tolist().index(1)
             self.setCentroid(index, i)
             box[index/200]=box[index/200]+1
-            print 'c',i,'=',index
+            #print 'c',i,'=',index
         print box
             
     def Cent2(self):
@@ -161,36 +168,44 @@ class MSPL:
                     clusSize[j]+=self.Assment[j,i]*self.weight[v][i]
             for l in range(self.centerNum):
                 self.centroids[v][:,l]/=clusSize[l]
-
+    
+    '''
     def means(self):
         m=0
         for v in range(self.viewNum):
             m+=ny.trace((self.dataSet[v]-self.centroids[v]*self.Assment)*(self.dataSet[v]-self.centroids[v]*self.Assment).T)
         return m/self.dataNum/self.viewNum
-
+    '''
+                
+    def means(self):
+        m=0
+        for v in range(self.viewNum):
+            m+=ny.power(self.dataSet[v]-self.centroids[v]*self.Assment,2).sum()
+        return m/self.dataNum/self.viewNum
+            
     def mspl(self):
         times=0
         if self.centroids==None:
             self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
             self.Cent()
         aFlag=self.updataAssment()
-        self.Lambda=1./self.means()
+        self.Lambda=1./self.means()/3*2
         print 'mean=',1./self.Lambda
         wFlag=self.updateWeight()
-        t1,t2,t3=0,0,0
+        #t1,t2,t3=0,0,0
         while aFlag or wFlag:
-            print times,t1,t2,t3
+            #print times,t1,t2,t3
             times+=1
-            tmp1=time.time()
+            #tmp1=time.time()
             self.updateCentroids()
-            tmp2=time.time()
-            t1+=tmp2-tmp1
-            tmp1=time.time()
+            #tmp2=time.time()
+            #t1+=tmp2-tmp1
+            #tmp1=time.time()
             aFlag=self.updataAssment()
-            tmp2=time.time()
-            t2+=tmp2-tmp1
-            tmp1=time.time()
+            #tmp2=time.time()
+            #t2+=tmp2-tmp1
+            #tmp1=time.time()
             wFlag=self.updateWeight()
-            tmp2=time.time()
-            t3+=tmp2-tmp1
-               
+            #tmp2=time.time()
+            #t3+=tmp2-tmp1
+        print times

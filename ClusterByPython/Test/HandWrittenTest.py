@@ -15,7 +15,7 @@ dataSet.append(ny.mat(matFile['kar']).T)
 dataSet.append(ny.mat(matFile['profile']).T)
 dataSet.append(ny.mat(matFile['zer']).T)
 nor=Normalize()
-dataSet=nor.normalize(dataSet)
+dataSet=map(lambda x:x*20,nor.normalize(dataSet))
 dims=[dataSet[i].shape[0] for i in range(len(dataSet))]
 centroids=[ny.mat(ny.zeros((dims[i],10))) for i in range(len(dataSet))]
 for i in range(10):
@@ -33,7 +33,6 @@ temp=ny.eye(10)
 for i in range(gnd.shape[0]):
     realAssment.append(temp[gnd[i,0]].tolist())#创建真实分配矩阵
 print '真实分配矩阵创建完毕，开始聚类'
-'''
 for i in range(len(dataSet)):
     print '\n'
     cenTmp,assment=kMeans(dataSet[i], 10,centroids[i])
@@ -42,15 +41,14 @@ for i in range(len(dataSet)):
     #print cenTmp
     #print centroids[i]
     print '\n'
-    mspl=MSPL(10,0.05,1.3,dataSet[i:i+1],centroids[i:i+1])
+    mspl=MSPL(10,0.05,1.5,dataSet[i:i+1],centroids[i:i+1])
     mspl.mspl()
     print 'mspl view',i
     evaluate(mspl.Assment, ny.mat(realAssment).T)
-'''
 cenTmp,assment=kMeans(dataSet2, 10,centroids2)
 print '\n Con-Mc'
 evaluate(assment, ny.mat(realAssment).T)
-mspl=MSPL(10,0.05,1.3,dataSet,centroids)
+mspl=MSPL(10,0.05,1.5,dataSet,centroids)
 mspl.mspl()
 print '\n mspl'
 evaluate(mspl.Assment, ny.mat(realAssment).T)
