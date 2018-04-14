@@ -123,6 +123,15 @@ class MSPL:
         e=ny.e
         allOneFlag=False
         for v in range(self.viewNum):
+            loss=ny.power(self.dataSet[v]-self.centroids[v]*self.Assment,2).sum(0)
+            for i in range(self.dataNum):
+                if loss[0,i]-1./self.Lambda>4:
+                    self.weight[v][i]=0
+                else:
+                    self.weight[v][i]=(1+e**(-1./self.Lambda))/(1+e**(loss[0,i]-1./self.Lambda))
+                if self.weight[v][i]!=1:
+                    allOneFlag=True
+            '''
             for i in range(self.dataNum):
                 l=self.loss(v,i)
                 if l-1./self.Lambda>4:
@@ -131,6 +140,7 @@ class MSPL:
                     self.weight[v][i]=(1+e**(-1./self.Lambda))/(1+e**(l-1./self.Lambda))
                 if self.weight[v][i]!=1:
                     allOneFlag=True
+            '''
         self.Lambda/=self.mu
         return allOneFlag
     
