@@ -67,10 +67,11 @@ class MSPL:
             '''
             probList2=(ny.array(probList)/sum(probList)).tolist()
             index=ny.random.multinomial(1,probList2).tolist().index(1)
+            #index=ny.argmax(probList)
             self.setCentroid(index, i)
             box[index/200]=box[index/200]+1
             #print 'c',i,'=',index
-        print box
+        #print box
             
     def Cent2(self):
         index=int(ny.random.rand()*self.dataNum)
@@ -131,6 +132,7 @@ class MSPL:
         allOneFlag=False
         for v in range(self.viewNum):
             loss=ny.power(self.dataSet[v]-self.centroids[v]*self.Assment,2).sum(0)
+            #self.weight[v]=map(lambda x:0 if x-1./self.Lambda>4 else (1+e**(-1./self.Lambda))/(1+e**(x-1./self.Lambda)),ny.array(loss)[0])
             for i in range(self.dataNum):
                 if loss[0,i]-1./self.Lambda>4:
                     self.weight[v][i]=0
@@ -147,6 +149,9 @@ class MSPL:
                     self.weight[v][i]=(1+e**(-1./self.Lambda))/(1+e**(l-1./self.Lambda))
                 if self.weight[v][i]!=1:
                     allOneFlag=True
+    
+            if sum(self.weight[v])==self.dataNum:
+                allOneFlag=True
             '''
         self.Lambda/=self.mu
         return allOneFlag
@@ -154,12 +159,18 @@ class MSPL:
     '''更新中心矩阵函数'''
     def updateCentroids(self):
         for v in range(self.viewNum):
-            W=ny.diag(ny.sqrt(self.weight[v]))
+            W=ny.mat(ny.diag(ny.sqrt(self.weight[v])))
             self.centroids[v]=(self.dataSet[v]*W*W.T*self.Assment.T)*(self.Assment*W*W.T*self.Assment.T).I
  
     '''第二种中心矩阵更新函数'''
     def update2(self):
+        B=ny.array(self.Assment)
         for v in range(self.viewNum):
+            X=ny.array(self.dataSet[v])
+            W=ny.array([self.weight[v]])
+            l=B.T*W.T
+            self.centroids[v]=ny.mat(X.dot(l)/l.sum(0))
+            '''
             self.centroids[v]*=0
             clusSize=[0]*self.centerNum
             for i in range(self.dataNum):
@@ -168,6 +179,7 @@ class MSPL:
                     clusSize[j]+=self.Assment[j,i]*self.weight[v][i]
             for l in range(self.centerNum):
                 self.centroids[v][:,l]/=clusSize[l]
+            '''
     
     '''
     def means(self):
@@ -189,15 +201,19 @@ class MSPL:
             self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
             self.Cent()
         aFlag=self.updataAssment()
-        self.Lambda=1./self.means()/3*2
+        self.Lambda=1./self.means()*1.5
         print 'mean=',1./self.Lambda
         wFlag=self.updateWeight()
         #t1,t2,t3=0,0,0
+        
         while aFlag or wFlag:
             #print times,t1,t2,t3
+            
+            #print 'wa.var=',wa.var()
             times+=1
             #tmp1=time.time()
-            self.updateCentroids()
+            #self.updateCentroids()
+            self.update2()
             #tmp2=time.time()
             #t1+=tmp2-tmp1
             #tmp1=time.time()
@@ -205,7 +221,34 @@ class MSPL:
             #tmp2=time.time()
             #t2+=tmp2-tmp1
             #tmp1=time.time()
-            wFlag=self.updateWeight()
+            if wFlag:
+                wa=ny.array(self.weight)
+                print 'wa.mean=',wa.mean()
+                wFlag=self.updateWeight()
             #tmp2=time.time()
             #t3+=tmp2-tmp1
+        print 'means2=',self.means()
+        print times
+        
+    def mspl2(self):
+        times=0
+        if self.centroids==None:
+            self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
+            self.Cent()
+        aFlag=self.updataAssment()
+        self.Lambda=1./7
+        for v in range(self.viewNum):
+            loss=ny.power(self.dataSet[v]-self.centroids[v]*self.Assment,2).sum()/self.dataNum
+            self.dataSet[v],self.centroids[v]= self.dataSet[v]*(8.0/loss)**0.5,self.centroids[v]*(8.0/loss)**0.5
+        #print 'mean=',self.means()
+        wFlag=self.updateWeight()
+        while aFlag or wFlag:
+            times+=1
+            self.update2()
+            aFlag=self.updataAssment()
+            if wFlag:
+                wa=ny.array(self.weight)
+                print 'wa.mean=',wa.mean()
+                wFlag=self.updateWeight()
+        print 'means2=',self.means()
         print times

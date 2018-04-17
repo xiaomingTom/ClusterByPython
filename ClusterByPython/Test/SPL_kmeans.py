@@ -1,6 +1,6 @@
 #coding=utf-8 
 import numpy
-import time
+#import time
 from matplotlib import pyplot as plt
 
 '''数据加载函数''' 
@@ -176,6 +176,32 @@ def kMeans(dataSet, k,centroids=None,distMeas=distEclud, createCent=disperseCent
                 clusterAssment[minIndex,i]=1
         #更新中心矩阵
         centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+    print times
+    return centroids, clusterAssment
+
+def kMeans2(dataSet, k,centroids=None,distMeas=distEclud, createCent=disperseCent):
+    n = numpy.shape(dataSet)[1]
+    clusterAssment = numpy.mat(numpy.zeros((k,n)))
+    #to a centroid, also holds SE of each point
+    if centroids is None:
+        centroids = createCent(dataSet, k)
+    clusterChanged = True
+    times=0
+    while clusterChanged:
+        clusterChanged = False
+        #print times
+        times+=1
+        for i in range(n):#for each data point assign it to the closest centroid
+            #minDist = numpy.inf
+            #print numpy.power(numpy.tile(dataSet[:,i],(1,k))-centroids,2).sum(0)
+            minIndex=numpy.argmin(numpy.power(numpy.tile(dataSet[:,i],(1,k))-centroids,2).sum(0))
+            if clusterAssment[minIndex,i] != 1:
+                clusterChanged = True
+                clusterAssment[:,i] = 0
+                clusterAssment[minIndex,i]=1
+        #更新中心矩阵
+        #centroids = (dataSet*clusterAssment.T)*((clusterAssment*clusterAssment.T).I)
+        centroids=numpy.mat(numpy.array(dataSet*clusterAssment.T)/(numpy.array(clusterAssment.T)).sum(0))
     print times
     return centroids, clusterAssment
 

@@ -1,5 +1,6 @@
 #coding=utf-8
-from Test.SPL_kmeans import *
+import numpy
+from Test.SPL_kmeans import kMeans2,show,loadDataSet
 from Test.Purity import Purity
 from Test.Hungary import Hungary
 from Test.DBI import DBI
@@ -9,8 +10,8 @@ from Test.NMI import NMI
 def main():
     dataMat = loadDataSet("D:/DataSet.txt")
     centerNum = input('please input the number of the center:\n')
-    Lambda = input('please input Lambda:\n')
-    myCentroids,clustAssing=kMeans(dataMat, centerNum)
+    #Lambda = input('please input Lambda:\n')
+    myCentroids,clustAssing=kMeans2(dataMat, centerNum)
     show(dataMat, 4, myCentroids, clustAssing)
     '''
     myCentroids,clustAssing,weight= SPL_kMeans(dataMat,centerNum,Lambda)
