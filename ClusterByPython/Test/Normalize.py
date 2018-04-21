@@ -24,7 +24,7 @@ class Normalize:
                     norMatr[i,:]=matr[i,:]/ny.linalg.norm(matr[i,:],2)
                 else:
                     norMatr[i,:]=1./matr.shape[1]
-                    print s,i,'特征全部为0，无法对该特征归一'
+                    print s,'视图',i,'特征全部为0，无法对该特征归一'
             dim,num=norMatr.shape
             norDataSet.append(norMatr*ny.power(float(num)/dim,0.5))
             s+=1

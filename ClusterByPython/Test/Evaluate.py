@@ -27,6 +27,8 @@ def evaluate(clusterAssing,realAssment):
             total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
     print 'the Accuracy=',total/dataNum
     nmi=NMI(clusterVSet,realVSet)
-    print 'nmi=',nmi.nmi()
+    n=nmi.nmi()
+    print 'nmi=',n
+    return purityTotal/dataNum,total/dataNum,n
     #dbi=DBI(dataMat,myCentroids,clusterVSet)
     #print 'DBI=',dbi.dbi()

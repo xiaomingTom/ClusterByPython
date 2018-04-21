@@ -17,7 +17,8 @@ dataSet.append(ny.mat(matFile['profile']).T)
 dataSet.append(ny.mat(matFile['zer']).T)
 nor=Normalize()
 #dataSet=nor.linerNormalize(dataSet);
-dataSet=map(lambda x:x*5,nor.normalize2(dataSet))
+#dataSet=map(lambda x:x*5,nor.normalize2(dataSet))
+dataSet=map(lambda x:x*8,nor.normalize2(dataSet))
 #print map(lambda x:ny.power(x,2).sum(),dataSet)
 dims=[dataSet[i].shape[0] for i in range(len(dataSet))]
 centroids=[ny.mat(ny.zeros((dims[i],10))) for i in range(len(dataSet))]
@@ -51,7 +52,7 @@ for i in range(len(dataSet)):
     evaluate(mspl.Assment, ny.mat(realAssment).T)
 print
 '''
-mspl=MSPL(10,0.05,1.4,dataSet,centroids)
+mspl=MSPL(10,0.05,1.7,dataSet,centroids)
 mspl.mspl()
 print '\n mspl'
 evaluate(mspl.Assment, ny.mat(realAssment).T)

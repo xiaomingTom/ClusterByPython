@@ -52,8 +52,8 @@ class MSPL:
         self.setCentroid(index, 0)
         #print 'c0=',index
         probList=[ny.inf]*self.dataNum
-        box=[0]*10
-        box[index/200]=1
+        #box=[0]*10
+        #box[index/200]=1
         dist=ny.mat(ny.zeros((1,self.dataNum)))
         for i in range(1,self.centerNum):
             '''在num个随机候选数据点中按离中心点集的最短距离作为多项分布参数，利用该分布生成随机数 b,将第b个实例作为新的聚类中心'''
@@ -69,7 +69,7 @@ class MSPL:
             index=ny.random.multinomial(1,probList2).tolist().index(1)
             #index=ny.argmax(probList)
             self.setCentroid(index, i)
-            box[index/200]=box[index/200]+1
+            #box[index/200]=box[index/200]+1
             #print 'c',i,'=',index
         #print box
             
@@ -201,8 +201,8 @@ class MSPL:
             self.centroids=[ny.mat(ny.zeros((self.dims[i],self.centerNum))) for i in range(self.viewNum)]
             self.Cent()
         aFlag=self.updataAssment()
-        self.Lambda=1./self.means()*1.5
-        print 'mean=',1./self.Lambda
+        self.Lambda=1./self.means()*3
+        print 'mean=',self.means()
         wFlag=self.updateWeight()
         #t1,t2,t3=0,0,0
         
