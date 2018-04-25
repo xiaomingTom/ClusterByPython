@@ -29,6 +29,26 @@ class TW_kmeans:
             for v in range(self.viewNum):
                 self.centroids[v][:,i]=self.dataSet[v][:,index]
     
+    def setCen(self,dataIndex,cenIndex):
+        for i in range(self.viewNum):
+            self.centroids[i][:,cenIndex]=self.dataSet[i][:,dataIndex]
+    
+    def Cent(self):
+        self.centroids=map(lambda x:ny.zeros((x,self.centerNum)),self.dims)
+        index=int(ny.random.rand()*self.dataNum)
+        self.setCen(index,0)
+        minDist=[ny.inf]*self.dataNum
+        dist=ny.array([0.]*self.dataNum)
+        for i in range(1,self.centerNum):
+            dist*=0
+            #求各点到新聚类中心的距离
+            for v in range(self.viewNum):
+                dist+=((self.dataSet[v].T-self.centroids[v][:,i-1])**2).sum(1)
+            minDist=map(lambda x,y:min(x,y),minDist,dist)
+            probList=ny.array(minDist)/sum(minDist)
+            index=ny.random.multinomial(1,probList).tolist().index(1)
+            self.setCen(index, i)
+        
     def updateAssment(self):
         changeFlag=False;
         for i in range(self.dataNum):
@@ -59,26 +79,22 @@ class TW_kmeans:
     def kmeans(self):
         times=0
         self.V=map(lambda x:x/x[0],self.V)
-        self.createCentroids()
+        #self.createCentroids()
+        self.Cent()
         while self.updateAssment():
             self.updateCentroids()
             times+=1
         print times
 
     def tw_kmeans(self):
-        #t1,t2=0,0
         times=0
         self.createCentroids()
+        #self.Cent()
         while self.updateAssment():
             self.updateCentroids()
-            #tmp=time.time()
             self.updateV()
-            #t1+=time.time()-tmp
-            #tmp=time.time()
             self.updateW()
-            #t2+=time.time()-tmp
             times+=1
-            #print times,t1,t2
         print times
         
 warnings.filterwarnings('error')  
@@ -101,10 +117,10 @@ tw=TW_kmeans(10,30,7,dataSet)
 pur=[]
 acc=[]
 nmi=[]
-for i in range(30):
+for i in range(10):
     try:
-        #tw.kmeans()
-        tw.tw_kmeans()
+        tw.kmeans()
+        #tw.tw_kmeans()
         p,a,n=evaluate(ny.mat(tw.assment), ny.mat(realAssment).T)
         pur.append(p)
         acc.append(a)
@@ -115,6 +131,6 @@ for i in range(30):
 print pur 
 print acc
 print nmi
-print 'pur mean max min',ny.mean(pur),max(pur),min(pur)
-print 'acc mean max min',ny.mean(acc),max(acc),min(acc)
-print 'nmi mean max min',ny.mean(nmi),max(nmi),min(nmi)
+print 'pur mean(std) max min std',('%.3f(%.3f)'%(ny.mean(pur),ny.std(pur))),max(pur),min(pur)
+print 'acc mean(std) max min std',('%.3f(%.3f)'%(ny.mean(acc),ny.std(acc))),max(acc),min(acc)
+print 'nmi mean(std) max min std',('%.3f(%.3f)'%(ny.mean(nmi),ny.std(nmi))),max(nmi),min(nmi)

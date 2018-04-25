@@ -5,13 +5,15 @@ from SPL_kmeans import kMeans2
 from Evaluate import evaluate
 from MSPL import MSPL
 from Normalize import Normalize
+from ctypes.test.test_pep3118 import normalize
 
 matFile=sio.loadmat("D:\dataSet\segment_uni.mat")
 dataSet=ny.mat(matFile['X']).T
 dataSet2=[]
 dataSet2.append(ny.mat(matFile['X'][:,0:9]).T)
 dataSet2.append(ny.mat(matFile['X'][:,9:19]).T)
-#nor=Normalize()
+nor=Normalize()
+dataSet2=nor.normalize(dataSet2)
 #dataSet2=map(lambda x:x*3.5,nor.normalize2(dataSet2))
 dataSet2[1]*=2
 Y=matFile['Y']

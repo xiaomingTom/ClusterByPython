@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//Test/CreateDataSet.py=utf-8
 encoding//Test/DBI.py=utf-8
+encoding//Test/Draw.py=utf-8
 encoding//Test/Evaluate.py=utf-8
 encoding//Test/HandWrittenTest.py=utf-8
 encoding//Test/Hungary.py=utf-8
@@ -13,6 +14,7 @@ encoding//Test/Normalize.py=utf-8
 encoding//Test/Purity.py=utf-8
 encoding//Test/SPL_W_kmeans.py=utf-8
 encoding//Test/SPL_kmeans.py=utf-8
+encoding//Test/TW_SPL.py=utf-8
 encoding//Test/TW_kmenas.py=utf-8
 encoding//Test/segment.py=utf-8
 encoding//Test/test.py=utf-8
