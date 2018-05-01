@@ -1,5 +1,7 @@
 #coding:utf-8
 import numpy as ny
+
+
 class Normalize:
     def __init__(self):
         pass
@@ -11,6 +13,16 @@ class Normalize:
             for i in range(matr.shape[0]):
                 if matr[i,:].sum()!=0:
                     norMatr[i,:]=matr[i,:]/ny.linalg.norm(matr[i,:],2)
+            norDataSet.append(norMatr)
+        return norDataSet
+    
+    def rowNormalize(self,dataSet=[ny.mat([[]])]):
+        norDataSet=[]
+        for matr in dataSet:
+            norMatr=ny.mat(ny.zeros(matr.shape))
+            for i in range(matr.shape[1]):
+                if matr[:,i].sum()!=0:
+                    norMatr[:,i]=matr[:,i]/ny.linalg.norm(matr[:,i],2)
             norDataSet.append(norMatr)
         return norDataSet
     
@@ -35,7 +47,10 @@ class Normalize:
         for matr in dataSet:
             norMatr=ny.mat(ny.zeros(matr.shape))
             for i in range(matr.shape[0]):
-                norMatr[i,:]=(matr[i,:]-matr[i,:].min())*1.0/(matr[i,:].max()-matr[i,:].min())
+                if matr[i,:].max()-matr[i,:].min()!=0:
+                    norMatr[i,:]=(matr[i,:]-matr[i,:].min())*1.0/(matr[i,:].max()-matr[i,:].min())
+                else:
+                    norMatr[i,:]=matr[i,:]
             norDataSet.append(norMatr)
         return norDataSet
     

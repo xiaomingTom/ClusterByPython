@@ -1,11 +1,10 @@
 #coding:utf-8
 import numpy as ny
-import scipy.io as sio
-import warnings
-#import time
-from Normalize import Normalize
+#import scipy.io as sio
+#import warnings
+import time
+#from Normalize import Normalize
 from Evaluate import evaluate
-from symbol import except_clause
 
 class TW_kmeans:
     def __init__(self,centerNum,Lambda,Eta,lam,mu,dataSet=[ny.array([[]])]):
@@ -26,9 +25,9 @@ class TW_kmeans:
         self.dataNum=dataSet[0].shape[1]
         #各视图维度
         self.dims=map(lambda x:x.shape[0],dataSet)
-        #特征调整参数aλ
+        #视图调整参数vλ
         self.Lambda=Lambda
-        #视图权重调整参数η
+        #特征权重调整参数η
         self.Eta=Eta
         #视图权重数组W
         self.W=ny.array([1./self.viewNum]*self.viewNum)
@@ -84,6 +83,14 @@ class TW_kmeans:
             #通过多项分布生成的结果获取新的聚类中心
             index=ny.random.multinomial(1,probList).tolist().index(1)
             self.setCen(index, i)
+    
+    #=======================================
+    #求X矩阵与Y矩阵间的距离矩阵
+    #=======================================
+    def distXY(self,X,Y):
+        x2=ny.tile((X.T**2).sum(1),(Y.shape[1],1)).T
+        y2=ny.tile((Y**2).sum(0),(X.shape[1],1))
+        return (x2+y2-2*X.T.dot(Y)).T
     
     #===================================================================
     #=获取第v个视图下各样本数据点到各聚类中心的距离矩阵函数
@@ -157,10 +164,26 @@ class TW_kmeans:
                 self.centroids[v]=X.dot(l)/l.sum(0)
         except Exception,err:
             print l.sum(0)
+            print B.sum(1)
             print v
             print err
             raise Exception
-            
+    
+    def updateCen(self):
+        t1,t2=0,0
+        for v in range(self.viewNum):
+            X=ny.mat(self.dataSet[v])
+            #C=ny.mat(self.centroids[v])
+            B=ny.mat(self.assment)
+            tmp=time.time()
+            D=((self.dataSet[v]-self.centroids[v].dot(self.assment))**2).sum(0)**0.5
+            t1+=time.time()-tmp
+            D=ny.mat(ny.diag(D))*0.5
+            tmp=time.time()
+            self.centroids[v]=ny.array(X*D*B.T*(B*D*B.T).I)
+            t2+=time.time()-tmp
+        print t1,t2
+           
     def updateV(self):
         for v in range(self.viewNum):
             '''
@@ -170,6 +193,7 @@ class TW_kmeans:
             '''
             E=ny.e**(-((self.dataSet[v]-self.centroids[v].dot(self.assment))**2*self.W[v]*self.weight[v]).sum(1)/self.Eta)
             self.V[v]=E/E.sum()
+            
     
     def updateW(self):
         for v in range(self.viewNum):
@@ -178,8 +202,10 @@ class TW_kmeans:
             VW[v]=E[v]/sum(E)
             E[v]=e**(-sum( ((X[v]-C[v]*B).F2 · SW[v]).T · TW[v]) / Tλ)
             '''
+            #print 'view',v,-(((self.dataSet[v]-self.centroids[v].dot(self.assment))**2*self.weight[v]).T*self.V[v]).sum()/self.Lambda
             self.W[v]=ny.e**(-( ((self.dataSet[v]-self.centroids[v].dot(self.assment))**2*self.weight[v]).T*self.V[v]).sum()/self.Lambda)
         self.W/=self.W.sum()
+        
     
     '''更新样本权重函数'''
     def updateWeight(self):
@@ -189,24 +215,41 @@ class TW_kmeans:
             loss=((self.dataSet[v]-self.centroids[v].dot(self.assment)).T**2*self.V[v]*self.W[v]).sum(1)
             for i in range(self.dataNum):
                 if loss[i]-1./self.lam>10:
-                    self.weight[v][i]=0.
+                    self.weight[v][i]=1.0e-7
                 else:
                     self.weight[v][i]=(1+e**(-1./self.lam))/(1+e**(loss[i]-1./self.lam))
                 if self.weight[v][i]!=1.:
                     allOneFlag=True
-        self.lam/=self.mu
+        #self.lam/=self.mu
         return allOneFlag
     
     #kmeans聚类方法
     def kmeans(self):
         times=0
+        self.W=ny.array([1.]*self.viewNum)
         self.V=map(lambda x:x/x[0],self.V)
         self.createCentroids()
+        #self.Cent()
+        #tmp=time.time()
         while self.updateA():
+            #print time.time()-tmp
             self.updateCentroids()
             times+=1
         print times
-
+        print self.means()
+    
+    def kcent(self):
+        times=0
+        self.W=ny.array([1.]*self.viewNum)
+        self.V=map(lambda x:x/x[0],self.V)
+        self.createCentroids()
+        #self.Cent()
+        while self.updateA():
+            self.updateCen()
+            times+=1
+        print times
+        print self.means()
+    
     def tw_kmeans(self):
         times=0
         self.createCentroids()
@@ -217,12 +260,13 @@ class TW_kmeans:
             self.updateW()
             times+=1
         print times
+        
      
     def means(self):
         m=0
         for v in range(self.viewNum):
-            m+=((self.dataSet[v]-self.centroids[v].dot(self.assment)).T**2*self.V[v]*self.W[v]).sum()
-        return m/self.dataNum/self.viewNum
+            m+=((self.dataSet[v]-self.centroids[v].dot(self.assment))**2).sum()*self.W[v]
+        return m/self.viewNum/self.dataNum
     
     def mspl(self,lam):
         times=0
@@ -239,12 +283,50 @@ class TW_kmeans:
             times+=1
             self.updateCentroids()
             aFlag=self.updateA()
-            if wFlag:
+            if not aFlag:
+                self.lam/=self.mu
                 wa=ny.array(self.weight)
-                print 'wa.mean=',wa.mean()
+                print times,'wa.mean=',wa.mean()
+            if wFlag:
                 wFlag=self.updateWeight()
         print 'means2=',self.means()
         print times
+    
+    def w_mspl(self,lam):
+        times=0
+        self.V=map(lambda x:x/x[0],self.V)
+        if not(lam is None):
+            self.lam=lam
+        self.createCentroids()
+        aFlag=self.updateA()
+        self.updateW()
+        print 'mean=',self.means()
+        wFlag=self.updateWeight()
+        while aFlag or wFlag:
+            times+=1
+            self.updateCentroids()
+            aFlag=self.updateA()
+            self.updateW()
+            if not aFlag:
+                self.lam/=self.mu
+                wa=ny.array(self.weight)
+                print times,'wa.mean=',wa.mean()
+            if wFlag:
+                wFlag=self.updateWeight()
+        print 'means2=',self.means()
+        print times
+    
+    def wkmeans(self):
+        times=0
+        self.V=map(lambda x:x/x[0],self.V)
+        self.W=ny.array([1./self.viewNum]*self.viewNum)
+        self.createCentroids()
+        while self.updateA():
+            self.updateW()
+            self.updateCentroids()
+            times+=1
+        print times
+        print self.means()
     
     def tw_sql(self,lam):
         times=0
@@ -262,12 +344,14 @@ class TW_kmeans:
             self.updateW()
             aFlag=self.updateA()
             if wFlag:
-                wa=ny.array(self.weight)
-                print 'wa.mean=',wa.mean()
+                #wa=ny.array(self.weight)
+                #print 'wa.mean=',wa.mean()
                 wFlag=self.updateWeight()
         print 'means2=',self.means()
         print times
-        
+
+
+'''        
 warnings.filterwarnings('error')  
 matFile=sio.loadmat("D:\dataSet\handwritten.mat")
 dataSet=[]
@@ -284,21 +368,17 @@ realAssment=[]
 temp=ny.eye(10)
 for i in range(gnd.shape[0]):
     realAssment.append(temp[gnd[i,0]].tolist())
-tw=TW_kmeans(10,30*370**2,7*370**2,0.3,1.1,dataSet)
-'''
-x=ny.array([[1,2],[3,4],[5,6],[7,8]])
-c=ny.array([[2,4,7],[1,5,6]])
-print tw.matrDist(x, c)
-'''
+tw=TW_kmeans(10,30*370**2,7*370**2,0.4,1.1,dataSet)
 pur=[]
 acc=[]
 nmi=[]
 for i in range(100):
     try:
         #tw.kmeans()
-        #tw.tw_kmeans()
+        tw.tw_kmeans()
         #tw.mspl(0.07)
-        tw.tw_sql(0.3)
+        #tw.tw_sql(0.4)
+        print tw.W
         p,a,n=evaluate(ny.mat(tw.assment), ny.mat(realAssment).T)
         pur.append(p)
         acc.append(a)
@@ -312,3 +392,4 @@ print nmi
 print 'pur mean(std) max min std',('%.3f(%.3f)'%(ny.mean(pur),ny.std(pur))),max(pur),min(pur)
 print 'acc mean(std) max min std',('%.3f(%.3f)'%(ny.mean(acc),ny.std(acc))),max(acc),min(acc)
 print 'nmi mean(std) max min std',('%.3f(%.3f)'%(ny.mean(nmi),ny.std(nmi))),max(nmi),min(nmi)
+'''

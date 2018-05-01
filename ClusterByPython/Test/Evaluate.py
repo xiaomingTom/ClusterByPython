@@ -14,9 +14,9 @@ def evaluate(clusterAssing,realAssment):
     purityTotal=0
     for i in range(centerNum):
         pur=purity.purity(realVSet, clusterVSet[i])
-        print "pur",i,"=",pur
+        #print "pur",i,"=",pur
         purityTotal+=pur*len(clusterVSet[i])
-    print 'the Purity=',purityTotal/dataNum
+    #print 'the Purity=',purityTotal/dataNum
     probMatr=numpy.mat([[-purity.probIJ(clusterVSet[i], realVSet[j]) for j in range(centerNum)] 
                     for i in range(centerNum)])
     hungary=Hungary(probMatr)
@@ -25,10 +25,10 @@ def evaluate(clusterAssing,realAssment):
     for i in range(centerNum):
         for j in range(centerNum):
             total+=(-probMatr[i,j])*matchMatr[i][j]*len(clusterVSet[i])
-    print 'the Accuracy=',total/dataNum
+    #print 'the Accuracy=',total/dataNum
     nmi=NMI(clusterVSet,realVSet)
     n=nmi.nmi()
-    print 'nmi=',n
+    #print 'nmi=',n
     return purityTotal/dataNum,total/dataNum,n
     #dbi=DBI(dataMat,myCentroids,clusterVSet)
     #print 'DBI=',dbi.dbi()

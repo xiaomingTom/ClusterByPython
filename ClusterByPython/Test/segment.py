@@ -5,7 +5,6 @@ from SPL_kmeans import kMeans2
 from Evaluate import evaluate
 from MSPL import MSPL
 from Normalize import Normalize
-from ctypes.test.test_pep3118 import normalize
 
 matFile=sio.loadmat("D:\dataSet\segment_uni.mat")
 dataSet=ny.mat(matFile['X']).T
